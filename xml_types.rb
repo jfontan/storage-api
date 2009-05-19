@@ -1,5 +1,5 @@
 
-require 'HappyMapper'
+require 'happymapper'
 
 module XML_TYPES
     class File
