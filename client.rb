@@ -39,5 +39,5 @@ def create_file(name, description, file_name)
         file_name)
 end
 
-pp create_file("uno", "descripcion", '/Users/jfontan/opennebula.tar.gz')
+pp create_file(*ARGV)
 
