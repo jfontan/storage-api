@@ -17,8 +17,6 @@ get '/' do
 end
 
 post '/' do
-    pp params
-    
     fid=uuid.generate
     
     file=params["file"]
@@ -28,15 +26,9 @@ post '/' do
     File.move(f_tmp.path, IMAGE_DIR+"/"+fid)
     f_tmp.unlink
     
-    pp params[:metadata]
-    
     xml_file=XML_TYPES::File.parse(params[:metadata])
-    pp xml_file
-    
     xml_file.fid=fid
-    xml=xml_file.to_xml
-    pp xml
-    xml
+    xml_file.to_xml
 end
 
 put '/' do
