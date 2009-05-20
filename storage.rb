@@ -4,16 +4,42 @@ require "sinatra"
 require 'uuid'
 require 'ftools'
 require 'xml_types'
-#require "sequel"
+require "sequel"
 
 require "pp"
+
+set :app_file, __FILE__
+set :reload, false
+set :lock, false
+
+DB=Sequel.sqlite("database.db")
+
+if !DB.table_exists? :files
+    DB.create_table :files do
+        varchar :fid
+        varchar :name
+        varchar :description
+        varchar :path
+    end
+end
+
+FILES=DB[:files]
 
 IMAGE_DIR='images'
 
 uuid=UUID.new
 
 get '/' do
-    'yujuuu'
+    xml="<files>"
+    file=XML_TYPES::File.new
+    FILES.each do |f|
+        file.fid=f[:fid]
+        file.name=f[:name]
+        file.description=f[:description]
+        xml<<file.to_xml
+    end
+    xml<<"</files>"
+    xml
 end
 
 post '/' do
@@ -28,6 +54,14 @@ post '/' do
     
     xml_file=XML_TYPES::File.parse(params[:metadata])
     xml_file.fid=fid
+    
+    FILES<<{
+        :fid => fid,
+        :name => xml_file.name,
+        :description => xml_file.description,
+        :path => IMAGE_DIR+"/"+fid
+    }
+    
     xml_file.to_xml
 end
 
