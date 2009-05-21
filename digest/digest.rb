@@ -54,6 +54,10 @@ def remote_user
   end
 end
 
+def gen_digest(name, password)
+  Digest::MD5.hexdigest("#{name}:OpenNebula:#{password}")
+end
+
 get '/' do
   text=remote_user+"\n"
   Users.each do |user|
@@ -64,12 +68,33 @@ end
 
 post '/' do
   user=params
-  user[:encripted_password]=Digest::MD5.hexdigest(
-    "#{user[:name]}:OpenNebula:#{user[:password]}")
+  user[:encripted_password]=gen_digest(params[:name], params[:password])
   Users<<user
     
   "User #{user[:name]} added.\n"
 end
-  
 
+delete '/:name' do
+  user=Users.filter(:name => params[:name]).first
+  if user
+    Users.filter(:name => params[:name]).delete
+    "User #{params[:name]} deleted.\n"
+  else
+    "User #{params[:name]} does not exist.\n"
+  end
+end
 
+put '/' do
+=begin
+  user=Users[:name => params[:name]]
+  if user
+    #user.update(
+    #  :password => params[:password],
+    #  :encripted_password => gen_digest(params[:user], params[:password])
+    #)
+    "User #{params[:name]} updated.\n"
+  else
+    "User #{params[:name]} does not exist.\n"
+  end
+=end
+end
