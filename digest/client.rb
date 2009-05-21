@@ -1,24 +1,34 @@
 
 require 'rubygems'
 require 'curb'
+require 'thor'
+require 'pp'
 
-c=Curl::Easy.new('http://localhost:4567')
-c.http_auth_types=Curl::CURLAUTH_DIGEST
-c.userpwd='admin:hola'
-c.verbose=true
-
-case ARGV[0]
-when 'list'
-  c.perform
-  puts c.body_str
+class UserAdmin < Thor
   
-when 'add'
-  c.http_post(
-    Curl::PostField.content('name', ARGV[1]),
-    Curl::PostField.content('password', ARGV[2])
-  )
-  puts c.body_str
+  def initialize(*args)
+    super(*args)
+    @curl=Curl::Easy.new('http://localhost:4567')
+    @curl.http_auth_types=Curl::CURLAUTH_DIGEST
+    @curl.userpwd='admin:hola'
+    #@curl.verbose=true
+  end
+
+  desc 'list', 'lists users available'
+  def list
+    @curl.perform
+    puts @curl.body_str
+  end
+  
+  desc 'add USER PASSWORD', 'adds a new user'
+  def add(user, password)
+    @curl.http_post(
+      Curl::PostField.content('name', user),
+      Curl::PostField.content('password', password)
+    )
+    puts @curl.body_str
+  end
 end
 
-
+UserAdmin.start
 
